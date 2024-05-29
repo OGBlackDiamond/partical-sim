@@ -7,6 +7,8 @@ public class Engine {
 
     BufferedImage imgBuffer;
 
+
+
     int width;
     int height;
 
@@ -45,5 +47,18 @@ public class Engine {
 
     public BufferedImage getBuffer() {
         return imgBuffer;
+    }
+}
+
+class Camera {
+
+    private int X;
+    private int Y;
+    private int Z;
+    
+    public Camera(int X, int Y, int Z) {
+        this.X = X;
+        this.Y = Y;
+        this.Z = Z;
     }
 }
