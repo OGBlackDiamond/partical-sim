@@ -32,7 +32,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "Main"
+    mainClass = "dev.Main"
 }
 
 tasks.named<Test>("test") {
