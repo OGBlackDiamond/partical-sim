@@ -1,6 +1,6 @@
 package dev.shapes;
 
-abstract class ShapesAbstractBaseClass {
+public abstract class ShapesAbstractBaseClass {
 
     // define color values for the shape
     protected int r;
@@ -8,17 +8,16 @@ abstract class ShapesAbstractBaseClass {
     protected int b;
 
     // the 3d x, y, z values of the object
-    protected int x;
-    protected int y;
-    protected int z;
+    protected double x;
+    protected double y;
+    protected double z;
 
     // optional transparency value
     protected int a;
 
-
     /**
      * Constructs a new shape with color values and a transparency value.
-
+     * 
      * @param r - red color value
      * @param g - green color value
      * @param b - blue color value
@@ -27,7 +26,7 @@ abstract class ShapesAbstractBaseClass {
      * @param z - the z position
      * @param a - the transparency value
      */
-    public ShapesAbstractBaseClass(int r, int g, int b, int x, int y, int z, int a) {
+    public ShapesAbstractBaseClass(int r, int g, int b, int a, double x, double y, double z) {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -39,10 +38,10 @@ abstract class ShapesAbstractBaseClass {
         this.a = a;
     }
 
-
     /**
-     * Constructs a new shape with color values and transparency defaulted to opaque.
-
+     * Constructs a new shape with color values and transparency defaulted to
+     * opaque.
+     * 
      * @param r - red color value
      * @param g - green color value
      * @param b - blue color value
@@ -50,10 +49,9 @@ abstract class ShapesAbstractBaseClass {
      * @param y - the y position
      * @param z - the z position
      */
-    public ShapesAbstractBaseClass(int r, int g, int b, int x, int y, int z) {
-        this(r, g, b, x, y, z, 255);
+    public ShapesAbstractBaseClass(int r, int g, int b, double x, double y, double z) {
+        this(r, g, b, 255, x, y, z);
     }
-    
 
     /**
      * Constructs a black shape at 0, 0, 0, fully opaque.
@@ -61,4 +59,14 @@ abstract class ShapesAbstractBaseClass {
     public ShapesAbstractBaseClass() {
         this(0, 0, 0, 0, 0, 255);
     }
+
+    protected int[] getRGB() {
+        return new int[] { r, g, b };
+    }
+
+    public int[] getRGBA() {
+        return new int[] { r, g, b, a };
+    }
+
+    public abstract boolean checkInBounds(double x, double y, double z);
 }

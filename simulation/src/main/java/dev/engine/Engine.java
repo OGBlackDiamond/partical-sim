@@ -2,6 +2,9 @@ package dev.engine;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
+import dev.shapes.ShapesAbstractBaseClass;
 
 public class Engine {
 
@@ -13,29 +16,62 @@ public class Engine {
     double FOV;
     double checkRate;
 
+    int renderLimit;
+
+    ArrayList<ShapesAbstractBaseClass> shapes;
+
     Camera cam;
     BuffWrapper buffer;
 
-    public Engine(int width, int height, double FOV, double checkRate) {
+    public Engine(int width, int height) {
         this.width = width;
         this.height = height;
-        this.FOV = FOV;
-        this.checkRate = checkRate;
-        cam = new Camera(0, 0, 0);
-        buffer = new BuffWrapper(width, height, width / 2, height / 2, FOV);
+
+        FOV = 90;
+
+        renderLimit = 150;
+
+        checkRate = 1;
+
+        this.shapes = new ArrayList<ShapesAbstractBaseClass>();
+
+        cam = new Camera(0, 0, -FOV);
+        buffer = new BuffWrapper(width, height, -width / 2, height / 2, 0);
 
     }
 
-    private void castRays() {
+    public void castRays() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 double[] camPos = cam.getPos();
-                Vector ray = new Vector(camPos[0], camPos[1], camPos[2], x, y);
+                Vector ray = new Vector(camPos[0], camPos[1], camPos[2], x, y, buffer);
 
+                boolean hasRendered = false;
 
+                buffer.setPixel(x, y, 0, 0, 0, 255);
+
+                while (ray.getCounter() < renderLimit && hasRendered == false) {
+
+                    double[] vectorPos = ray.getPos();
+
+                    for (ShapesAbstractBaseClass shape : shapes) {
+                        if (shape.checkInBounds(vectorPos[0], vectorPos[1], vectorPos[2])) {
+                            int[] shapeColor = shape.getRGBA();
+                            buffer.setPixel(x, y, shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]);
+                            hasRendered = true;
+                            break;
+                        }
+                    }
+
+                    ray.incriment();
+                }
 
             }
         }
+    }
+
+    public void addShape(ShapesAbstractBaseClass shape) {
+        shapes.add(shape);
     }
 
     public BuffWrapper getBuffer() {
@@ -55,7 +91,7 @@ public class Engine {
         }
 
         public double[] getPos() {
-            return new double[] {x, y, z};
+            return new double[] { x, y, z };
         }
     }
 
@@ -70,6 +106,10 @@ public class Engine {
         public BuffWrapper(int width, int height, double camX, double camY, double camZ) {
             generateBuffer(width, height, true);
             fill(0, 0, 0, 0);
+
+            x = camX;
+            y = camY;
+            z = camZ;
         }
 
         /**
@@ -97,6 +137,10 @@ public class Engine {
             }
         }
 
+        public double[] getPos() {
+            return new double[] { x , y , z };
+        }
+
         public BufferedImage getBuffer() {
             return imgBuffer;
         }
@@ -113,28 +157,39 @@ public class Engine {
         private double incrimentY;
         private double incrimentZ;
 
-        public Vector(double startX, double startY, double startZ, int buffX, int buffY) { 
+        private int incrimentCounter;
+
+        public Vector(double startX, double startY, double startZ, int buffX, int buffY, BuffWrapper buffer) {
             this.startX = startX;
             this.startY = startY;
             this.startZ = startZ;
 
-            this.incrimentX = startX - (width / 2) + buffX;
-            this.incrimentY = startY - (height / 2) + buffY;
-            this.incrimentZ = FOV / checkRate;
+            incrimentCounter = 0;
+
+            double[] buffPos = buffer != null ? buffer.getPos() : new double[] { 0, 0, 0 };
+
+            this.incrimentX = (buffPos[0] + buffX + startX) * checkRate;
+            this.incrimentY = (buffPos[1] - buffY + startY) * checkRate;
+            this.incrimentZ = FOV * checkRate;
         }
 
         public Vector() {
-            this(0, 0, 0, 0, 0);
+            this(0, 0, 0, 0, 0, null);
         }
 
         public double[] getPos() {
             return new double[] { startX, startY, startZ };
         }
 
+        public int getCounter() {
+            return incrimentCounter;
+        }
+
         public void incriment() {
             startX += incrimentX;
             startY += incrimentY;
             startZ += incrimentZ;
+            incrimentCounter++;
         }
     }
 }
