@@ -7,7 +7,7 @@ public class Sphere extends ShapesAbstractBaseClass {
     private double radius;
 
     public Sphere() {
-        this(100, 100, 100, 100, 0, 0, 25, 50);
+        this(100, 100, 100, 100, 0, 0, 25, 25);
     }
 
     public Sphere(int r, int g, int b, int a, double x, double y, double z, double radius) {

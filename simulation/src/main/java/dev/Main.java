@@ -13,13 +13,13 @@ class Main {
 
         System.out.println("Hello Gradle!");
         
-        Window window = new Window(1000, 1000);
+        Window window = new Window(500, 500);
 
         Engine engine = new Engine(window.getWidth(), window.getHeight());
 
-        engine.addShape(new Sphere());
+        engine.addShape(new Sphere(100, 100, 100, 200, 0, 0, 120, 90));
         engine.addShape(new Sphere(255, 100, 100, 200, 70, 70, 90, 70));
-
+        engine.addShape(new Sphere(100, 255, 100, 200, -3, 3, 5, 50));
 
         window.updateBuffer(engine.getBuffer().getBuffer());
    

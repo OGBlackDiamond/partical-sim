@@ -27,11 +27,11 @@ public class Engine {
         this.width = width;
         this.height = height;
 
-        FOV = 90;
+        FOV = 1000;
 
-        renderLimit = 150;
+        renderLimit = 100;
 
-        checkRate = 1;
+        checkRate = 0.1;
 
         this.shapes = new ArrayList<ShapesAbstractBaseClass>();
 
@@ -41,16 +41,15 @@ public class Engine {
     }
 
     public void castRays() {
+        double[] camPos = cam.getPos();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                double[] camPos = cam.getPos();
                 Vector ray = new Vector(camPos[0], camPos[1], camPos[2], x, y, buffer);
-
-                boolean hasRendered = false;
 
                 buffer.setPixel(x, y, 0, 0, 0, 255);
 
-                while (ray.getCounter() < renderLimit && hasRendered == false) {
+                rayloop:
+                while (ray.getCounter() < renderLimit / checkRate) {
 
                     double[] vectorPos = ray.getPos();
 
@@ -58,8 +57,7 @@ public class Engine {
                         if (shape.checkInBounds(vectorPos[0], vectorPos[1], vectorPos[2])) {
                             int[] shapeColor = shape.getRGBA();
                             buffer.setPixel(x, y, shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]);
-                            hasRendered = true;
-                            break;
+                            break rayloop;
                         }
                     }
 
@@ -138,7 +136,7 @@ public class Engine {
         }
 
         public double[] getPos() {
-            return new double[] { x , y , z };
+            return new double[] { x, y, z };
         }
 
         public BufferedImage getBuffer() {
@@ -160,13 +158,14 @@ public class Engine {
         private int incrimentCounter;
 
         public Vector(double startX, double startY, double startZ, int buffX, int buffY, BuffWrapper buffer) {
-            this.startX = startX;
-            this.startY = startY;
-            this.startZ = startZ;
+            double[] buffPos = buffer != null ? buffer.getPos() : new double[] { 0, 0, 0 };
+
+            this.startX = buffX + buffPos[0];
+            this.startY = buffPos[1] - buffY;
+            this.startZ = buffPos[2];
 
             incrimentCounter = 0;
 
-            double[] buffPos = buffer != null ? buffer.getPos() : new double[] { 0, 0, 0 };
 
             this.incrimentX = (buffPos[0] + buffX + startX) * checkRate;
             this.incrimentY = (buffPos[1] - buffY + startY) * checkRate;
