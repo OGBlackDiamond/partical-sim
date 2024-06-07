@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import dev.shapes.ShapesAbstractBaseClass;
+import dev.particles.Atom;
+import dev.particles.Electron;
 
 public class Engine {
 
@@ -18,29 +19,36 @@ public class Engine {
 
     int renderLimit;
 
-    ArrayList<ShapesAbstractBaseClass> shapes;
+    ArrayList<Atom> atoms;
 
     Camera cam;
     BuffWrapper buffer;
+
 
     public Engine(int width, int height) {
         this.width = width;
         this.height = height;
 
-        FOV = 1000;
+        FOV = 3000;
 
-        renderLimit = 100;
+        renderLimit = 300;
 
-        checkRate = 0.1;
+        checkRate = 0.01;
 
-        this.shapes = new ArrayList<ShapesAbstractBaseClass>();
+        this.atoms = new ArrayList<Atom>();
 
         cam = new Camera(0, 0, -FOV);
         buffer = new BuffWrapper(width, height, -width / 2, height / 2, 0);
-
     }
 
-    public void castRays() {
+    public BufferedImage getFrame() {
+        castRays();
+        return buffer.getBuffer();
+    }
+
+
+    private void castRays() {
+        buffer = new BuffWrapper(width, height, -width / 2, height / 2, 0);
         double[] camPos = cam.getPos();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -53,11 +61,17 @@ public class Engine {
 
                     double[] vectorPos = ray.getPos();
 
-                    for (ShapesAbstractBaseClass shape : shapes) {
-                        if (shape.checkInBounds(vectorPos[0], vectorPos[1], vectorPos[2])) {
-                            int[] shapeColor = shape.getRGBA();
+                    for (Atom atom: atoms) {
+                        if (atom.getShape().checkInBounds(vectorPos[0], vectorPos[1], vectorPos[2])) {
+                            int[] shapeColor = atom.getShape().getRGBA();
                             buffer.setPixel(x, y, shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]);
                             break rayloop;
+                        }
+                        for (Electron electron : atom.getElectrons()) {
+                            if (electron.getShape().checkInBounds(vectorPos[0], vectorPos[1], vectorPos[2])) {
+                                buffer.setPixel(x, y, 100, 100, 100, 255);
+                                break rayloop;
+                            }
                         }
                     }
 
@@ -68,8 +82,16 @@ public class Engine {
         }
     }
 
-    public void addShape(ShapesAbstractBaseClass shape) {
-        shapes.add(shape);
+    public void addAtom(Atom atom) {
+        atoms.add(atom);
+    }
+
+    public void stepSim() {
+        for (Atom atom : atoms) {
+            for (Electron electron : atom.getElectrons()) {
+                electron.step();
+            }
+        }
     }
 
     public BuffWrapper getBuffer() {
@@ -160,9 +182,9 @@ public class Engine {
         public Vector(double startX, double startY, double startZ, int buffX, int buffY, BuffWrapper buffer) {
             double[] buffPos = buffer != null ? buffer.getPos() : new double[] { 0, 0, 0 };
 
-            this.startX = buffX + buffPos[0];
-            this.startY = buffPos[1] - buffY;
-            this.startZ = buffPos[2];
+            this.startX = startX;
+            this.startY = startY;
+            this.startZ = startZ;
 
             incrimentCounter = 0;
 

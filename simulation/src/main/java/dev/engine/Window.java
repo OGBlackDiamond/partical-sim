@@ -22,16 +22,24 @@ public class Window {
         window.setSize(width, height);
         this.width = width;
         this.height = height;
-        window.setVisible(true);
+        window.setVisible(false);
         window.setLocationRelativeTo(null);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel = new JLabel();
+    }
+
+    public void startWindow() {
+        window.setVisible(true);
     }
 
     public void updateBuffer(BufferedImage image) {
         panel.setIcon(new ImageIcon(image));
         window.getContentPane().add(panel, BorderLayout.CENTER);
         window.pack();
+    }
+
+    public void clearBuffer() {
+        window.getContentPane().removeAll();
     }
 
     public int getWidth() {

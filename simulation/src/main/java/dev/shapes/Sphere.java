@@ -19,4 +19,10 @@ public class Sphere extends ShapesAbstractBaseClass {
     public boolean checkInBounds(double x, double y, double z) {
         return Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2) + Math.pow(z - this.z, 2) <= Math.pow(radius, 2);
     }
+
+    public void updateCoords(double[] coords) {
+        x = coords[0];
+        y = coords[1];
+        z = coords[2];
+    }
 }
